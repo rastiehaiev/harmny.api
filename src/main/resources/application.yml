@@ -1,0 +1,8 @@
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: "harmny-api"
+
+server:
+  port: 8080
