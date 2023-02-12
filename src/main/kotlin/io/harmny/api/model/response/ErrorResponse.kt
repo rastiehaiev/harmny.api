@@ -1,4 +1,4 @@
-package io.harmny.api.response
+package io.harmny.api.model.response
 
 import com.fasterxml.jackson.annotation.JsonInclude
 
@@ -10,5 +10,5 @@ data class ErrorResponse(
 data class ErrorObject(
     val type: String,
     val description: String?,
-    val properties: Map<String, String>?,
+    val properties: Map<String, Any>?,
 )

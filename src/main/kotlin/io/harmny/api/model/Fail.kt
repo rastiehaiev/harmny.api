@@ -2,14 +2,14 @@ package io.harmny.api.model
 
 import arrow.core.Either
 import arrow.core.left
-import io.harmny.api.response.ErrorObject
-import io.harmny.api.response.ErrorResponse
+import io.harmny.api.model.response.ErrorObject
+import io.harmny.api.model.response.ErrorResponse
 import org.springframework.http.ResponseEntity
 
 data class Fail(
     val type: String,
     val description: String?,
-    val properties: Map<String, String>?,
+    val properties: Map<String, Any>?,
 ) {
 
     companion object {
@@ -17,7 +17,7 @@ data class Fail(
         fun <S> input(
             key: String = "",
             description: String? = null,
-            properties: Map<String, String>? = null,
+            properties: Map<String, Any>? = null,
         ): Either<Fail, S> {
             return general("fail.input", key, description, properties)
         }
@@ -25,7 +25,7 @@ data class Fail(
         fun <S> resource(
             key: String = "",
             description: String? = null,
-            properties: Map<String, String>? = null,
+            properties: Map<String, Any>? = null,
         ): Either<Fail, S> {
             return general("fail.resource", key, description, properties)
         }
@@ -33,7 +33,7 @@ data class Fail(
         fun <S> authentication(
             key: String = "",
             description: String? = null,
-            properties: Map<String, String>? = null,
+            properties: Map<String, Any>? = null,
         ): Either<Fail, S> {
             return general("fail.authentication", key, description, properties)
         }
@@ -41,7 +41,7 @@ data class Fail(
         fun <S> authorization(
             key: String = "",
             description: String? = null,
-            properties: Map<String, String>? = null,
+            properties: Map<String, Any>? = null,
         ): Either<Fail, S> {
             return general("fail.authorization", key, description, properties)
         }
@@ -49,7 +49,7 @@ data class Fail(
         fun <S> conflict(
             key: String = "",
             description: String? = null,
-            properties: Map<String, String>? = null,
+            properties: Map<String, Any>? = null,
         ): Either<Fail, S> {
             return general("fail.conflict", key, description, properties)
         }
@@ -57,7 +57,7 @@ data class Fail(
         fun <S> internal(
             key: String = "",
             description: String? = null,
-            properties: Map<String, String>? = null,
+            properties: Map<String, Any>? = null,
         ): Either<Fail, S> {
             return general("fail.internal", key, description, properties)
         }
@@ -66,7 +66,7 @@ data class Fail(
             type: String,
             key: String,
             description: String? = null,
-            properties: Map<String, String>? = null,
+            properties: Map<String, Any>? = null,
         ): Either<Fail, S> {
             val resultType = if (key.isNotBlank()) "$type.$key" else type
             return Fail(resultType, description, properties).left()

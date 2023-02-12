@@ -3,6 +3,14 @@ spring:
     banner-mode: off
   application:
     name: "harmny-api"
+  data:
+    mongodb:
+      authentication-database: "harmny"
+      username: "harmny"
+      password: "harmny"
+      database: "harmny"
+      host: "localhost"
+      port: "27017"
 
 server:
   port: 8080
