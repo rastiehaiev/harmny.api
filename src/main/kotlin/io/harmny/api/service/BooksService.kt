@@ -13,15 +13,11 @@ import io.harmny.api.model.request.BooksCreateRequest
 import io.harmny.api.model.request.BooksListRequest
 import io.harmny.api.model.request.BooksUpdateRequest
 import io.harmny.api.repository.BooksRepository
-import io.harmny.api.utils.letIf
-import io.harmny.api.utils.toBaseCriteria
-import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.springframework.data.domain.PageRequest
+import io.harmny.api.utils.parsePageNumber
+import io.harmny.api.utils.parsePageSize
+import io.harmny.api.utils.validateName
 import org.springframework.data.domain.Sort
 import org.springframework.data.domain.Sort.Direction
-import org.springframework.data.mongodb.core.ReactiveMongoOperations
-import org.springframework.data.mongodb.core.query.Query
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -30,11 +26,12 @@ import java.util.UUID
 @Service
 class BooksService(
     private val booksRepository: BooksRepository,
-    private val mongoOperations: ReactiveMongoOperations,
 ) {
 
-    private val maxPageSize = 50
-    private val defaultPageSize = 20
+    companion object {
+        private const val maxPageSize = 50
+        private const val defaultPageSize = 20
+    }
 
     suspend fun list(context: Context, request: BooksListRequest): Either<Fail, Page<Book>> {
         return either {
@@ -44,7 +41,7 @@ class BooksService(
             val genres = request.genres.orEmpty()
             val authors = request.authors.orEmpty()
 
-            val criteria = context.toBaseCriteria()
+            /*val criteria = context.toBaseCriteria()
                 .letIf(genres.isNotEmpty()) { it.and("genre").`in`(request.genres.orEmpty()) }
                 .letIf(authors.isNotEmpty()) { it.and("author").`in`(request.authors.orEmpty()) }
                 .letIf(bookStatus != null) { it.and("status").`is`(bookStatus) }
@@ -57,7 +54,8 @@ class BooksService(
                 .collectList()
                 .awaitSingle()
                 .map { it.toBook() }
-            Page(total = total, pageNumber = pageNumber, pageSize = pageSize, items = books)
+            Page(total = total, pageNumber = pageNumber, pageSize = pageSize, items = books)*/
+            TODO()
         }
     }
 
@@ -81,7 +79,8 @@ class BooksService(
                 status = BookStatus.NOT_STARTED.key,
                 pagesCount = pagesCount,
             )
-            booksRepository.save(bookEntity).awaitSingle().toBook()
+            // booksRepository.save(bookEntity).awaitSingle().toBook()
+            TODO()
         }
     }
 
@@ -110,7 +109,7 @@ class BooksService(
             }
             if (bookEntity != bookEntityCopy) {
                 bookEntity.lastUpdatedAt = Instant.now()
-                booksRepository.save(bookEntity).awaitSingle()
+                // TODO booksRepository.save(bookEntity).awaitSingle()
             }
             bookEntity.toBook()
         }
@@ -118,18 +117,19 @@ class BooksService(
 
     suspend fun delete(context: Context, bookId: String): Either<Fail, Book> {
         return findById(context, bookId).map { bookEntity ->
-            booksRepository.deleteById(bookId).awaitSingle()
+            // booksRepository.deleteById(bookId).awaitSingleOrNull()
             bookEntity.toBook()
         }
     }
 
     private suspend fun findById(context: Context, bookId: String): Either<Fail, BookEntity> {
-        val book = booksRepository.findById(bookId)
+        /*val book = booksRepository.findById(bookId)
             .awaitSingleOrNull()
             ?.takeIf { it.userId == context.userId }
             ?.takeIf { context.applicationId == null || it.applicationId == context.applicationId }
             ?: return Fail.resource("book.not.found")
-        return book.right()
+        return book.right()*/
+        TODO()
     }
 
     private fun getSorting(request: BooksListRequest): Either<Fail, Sort> {
@@ -164,32 +164,6 @@ class BooksService(
             .right()
     }
 
-    private fun parsePageNumber(pageNumberString: String?): Either<Fail, Int> {
-        return if (pageNumberString.isNullOrBlank()) {
-            Either.Right(0)
-        } else {
-            val pageNumber = pageNumberString.toIntOrNull()
-            if (pageNumber == null || pageNumber < 0) {
-                Fail.input("page.number.invalid")
-            } else {
-                Either.Right(pageNumber)
-            }
-        }
-    }
-
-    private fun parsePageSize(pageSizeString: String?): Either<Fail, Int> {
-        return if (pageSizeString.isNullOrBlank()) {
-            Either.Right(defaultPageSize)
-        } else {
-            val pageSize = pageSizeString.toIntOrNull()
-            if (pageSize == null || pageSize < 0) {
-                Fail.input("page.size.invalid")
-            } else {
-                Either.Right(minOf(maxPageSize, pageSize))
-            }
-        }
-    }
-
     private fun parseBookStatus(bookStatusString: String?): Either<Fail, BookStatus?> {
         return if (bookStatusString == null) {
             Either.Right(null)
@@ -203,34 +177,24 @@ class BooksService(
         }
     }
 
+    private fun parsePageNumber(pageNumber: String?): Either<Fail, Int> {
+        return pageNumber.parsePageNumber()
+    }
+
+    private fun parsePageSize(pageSize: String?): Either<Fail, Int> {
+        return pageSize.parsePageSize(defaultPageSize, maxPageSize)
+    }
+
     private fun validateName(name: String?): Either<Fail, String> {
-        return if (name.isNullOrBlank()) {
-            Fail.input("book.name.empty")
-        } else if (name.length > 100) {
-            Fail.input("book.name.too.long")
-        } else {
-            name.trim().right()
-        }
+        return (name ?: "").validateName("book.name", maxLength = 100).map { it.lowercase() }
     }
 
     private fun validateAuthor(author: String?): Either<Fail, String> {
-        return if (author.isNullOrBlank()) {
-            Fail.input("book.author.empty")
-        } else if (author.length > 60) {
-            Fail.input("book.author.too.long")
-        } else {
-            author.trim().right()
-        }
+        return (author ?: "").validateName("book.author", maxLength = 60).map { it.lowercase() }
     }
 
     private fun validateGenre(genre: String?): Either<Fail, String> {
-        return if (genre.isNullOrBlank()) {
-            Fail.input("book.genre.empty")
-        } else if (genre.length > 30) {
-            Fail.input("book.genre.too.long")
-        } else {
-            genre.trim().lowercase().right()
-        }
+        return (genre ?: "").validateName("book.genre", maxLength = 30).map { it.lowercase() }
     }
 
     private fun validatePagesCount(pagesCount: String?): Either<Fail, Int?> {

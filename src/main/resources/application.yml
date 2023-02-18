@@ -3,14 +3,19 @@ spring:
     banner-mode: off
   application:
     name: "harmny-api"
-  data:
-    mongodb:
-      authentication-database: "harmny"
-      username: "harmny"
-      password: "harmny"
-      database: "harmny"
-      host: "localhost"
-      port: "27017"
+  datasource:
+    url: "jdbc:postgresql://localhost:5455/harmny"
+    username: "harmny"
+    password: "harmny"
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: on
+    url: "jdbc:postgresql://localhost:5455/harmny"
+    user: "harmny"
+    password: "harmny"
+    schemas: "public"
+  jpa:
+    open-in-view: off
 
 server:
   port: 8080

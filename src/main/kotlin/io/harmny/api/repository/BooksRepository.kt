@@ -1,8 +1,8 @@
 package io.harmny.api.repository
 
 import io.harmny.api.entity.BookEntity
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository
+import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface BooksRepository : ReactiveMongoRepository<BookEntity, String>
+interface BooksRepository : CrudRepository<BookEntity, String>
