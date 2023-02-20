@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ActivitiesRepository : CrudRepository<ActivityEntity, String> {
 
+    fun findAllByUserIdAndIdIn(userId: String, ids: List<String>): List<ActivityEntity>
+
     fun findFirstByUserIdAndParentActivityIdAndName(
         userId: String,
         parentActivityId: String?,
@@ -20,10 +22,10 @@ interface ActivitiesRepository : CrudRepository<ActivityEntity, String> {
     @Query(
         value = """
         WITH RECURSIVE r AS (
-            SELECT * FROM activities WHERE id=:id
+            SELECT * FROM activity WHERE id=:id
             UNION ALL
             SELECT a.*
-            FROM r, activities a
+            FROM r, activity a
             WHERE r.parent_activity_id IS NOT NULL AND a.id = r.parent_activity_id
         )
         SELECT COUNT(*) AS dimensions FROM r;
@@ -34,10 +36,10 @@ interface ActivitiesRepository : CrudRepository<ActivityEntity, String> {
     @Query(
         value = """
         WITH RECURSIVE r AS (
-            SELECT * FROM activities WHERE id=:id
+            SELECT * FROM activity WHERE id=:id
             UNION ALL
             SELECT a.*
-            FROM r, activities a
+            FROM r, activity a
             WHERE r.id = a.parent_activity_id
         )
         SELECT COUNT(DISTINCT coalesce(parent_activity_id, 'a')) dimensions FROM r;
@@ -48,10 +50,10 @@ interface ActivitiesRepository : CrudRepository<ActivityEntity, String> {
     @Query(
         value = """
         WITH RECURSIVE r AS (
-            SELECT * FROM activities WHERE id=:id
+            SELECT * FROM activity WHERE id=:id
             UNION ALL
             SELECT a.*
-            FROM r, activities a
+            FROM r, activity a
             WHERE r.id = a.parent_activity_id
         )
         SELECT * FROM r;

@@ -49,6 +49,7 @@ fun String?.parsePageSize(
 
 fun String.validateName(
     key: String,
+    minLength: Int = 4,
     maxLength: Int,
 ): Either<Fail, String> {
     val nameNormalised = trim().takeIf { it.isNotBlank() } ?: return Fail.input("$key.blank")
@@ -56,14 +57,22 @@ fun String.validateName(
         .rightIfNotNull {
             Fails.input(
                 key = "$key.invalid",
-                properties = mapOf("SUPPORTED_PATTERN" to NAME_PATTERN),
+                properties = mapOf("supported_pattern" to NAME_PATTERN),
             )
-        }.flatMap { resultTag ->
-            resultTag.takeIf { it.length < maxLength }
+        }.flatMap { resultName ->
+            resultName.takeIf { it.length < maxLength }
                 .rightIfNotNull {
                     Fails.input(
                         key = "$key.invalid",
-                        properties = mapOf("MAX_SIZE" to maxLength),
+                        properties = mapOf("max_length" to maxLength),
+                    )
+                }
+        }.flatMap { resultName ->
+            resultName.takeIf { it.length > minLength }
+                .rightIfNotNull {
+                    Fails.input(
+                        key = "$key.invalid",
+                        properties = mapOf("min_length" to minLength),
                     )
                 }
         }
