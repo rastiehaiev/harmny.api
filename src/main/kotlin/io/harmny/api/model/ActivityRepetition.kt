@@ -7,13 +7,10 @@ import java.time.Instant
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class Activity(
+data class ActivityRepetition(
     val id: String,
-    val name: String,
-    val group: Boolean,
-    val parentActivityId: String?,
-    val createdAt: Instant,
-    val lastUpdatedAt: Instant,
-    val childActivities: List<Activity>?,
-    val currentRepetitionId: String?,
+    val timeSpent: Int?,
+    val count: Int?,
+    val caloriesBurnt: Int?,
+    val time: Instant,
 )

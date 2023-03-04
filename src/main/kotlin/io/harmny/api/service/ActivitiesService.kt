@@ -126,7 +126,7 @@ class ActivitiesService(
         return (name ?: "")
             .trim()
             .reduceRepeatedSpaces()
-            .validateName("activity.name", maxLength = 100)
+            .validateName("activity.name", minLength = 1, maxLength = 100)
             .flatMap { validatedName ->
                 if (activityByNameAlreadyExists(context, parentActivityId, validatedName)) {
                     validatedName.right()
@@ -153,6 +153,7 @@ class ActivitiesService(
             createdAt,
             lastUpdatedAt,
             childActivities = null,
+            currentRepetitionId = currentRepetition?.id,
         )
     }
 
@@ -177,6 +178,7 @@ class ActivitiesService(
             createdAt,
             lastUpdatedAt,
             children,
+            currentRepetition?.id,
         )
     }
 

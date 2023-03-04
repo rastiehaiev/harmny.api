@@ -1,9 +1,14 @@
 package io.harmny.api.entity
 
 import java.time.Instant
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.OneToMany
+import javax.persistence.OneToOne
 
 @Entity(name = "activity")
 data class ActivityEntity(
@@ -23,4 +28,9 @@ data class ActivityEntity(
     val createdAt: Instant,
     @Column(name = "last_updated_at")
     var lastUpdatedAt: Instant,
+    @OneToMany(mappedBy = "activity", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    var repetitions: List<ActivityRepetitionEntity> = emptyList(),
+    @OneToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "current_repetition_id", referencedColumnName = "id")
+    var currentRepetition: ActivityRepetitionEntity? = null,
 )

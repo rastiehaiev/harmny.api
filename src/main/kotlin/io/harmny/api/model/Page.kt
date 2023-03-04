@@ -14,5 +14,12 @@ data class Page<T>(
     val pageSize: Int,
     val items: List<T>,
 ) {
+
+    companion object {
+        fun <T> empty(pageNumber: Int, pageSize: Int): Page<T> {
+            return Page(total = 0, pageNumber, pageSize, emptyList())
+        }
+    }
+
     val totalOnPage: Int = items.size
 }

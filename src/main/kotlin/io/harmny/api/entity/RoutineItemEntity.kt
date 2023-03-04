@@ -2,6 +2,7 @@ package io.harmny.api.entity
 
 import javax.persistence.Column
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.Id
 import javax.persistence.ManyToOne
 
@@ -15,4 +16,6 @@ data class RoutineItemEntity(
     var note: String?,
     @ManyToOne
     val activity: ActivityEntity,
+    @ManyToOne(fetch = FetchType.LAZY)
+    val routine: RoutineEntity,
 )

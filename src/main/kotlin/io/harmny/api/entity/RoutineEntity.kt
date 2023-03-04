@@ -1,13 +1,12 @@
 package io.harmny.api.entity
 
 import java.time.Instant
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.JoinTable
-import javax.persistence.ManyToMany
+import javax.persistence.OneToMany
 
 @Entity(name = "routine")
 data class RoutineEntity(
@@ -23,11 +22,6 @@ data class RoutineEntity(
     val createdAt: Instant,
     @Column(name = "last_updated_at")
     var lastUpdatedAt: Instant,
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "routine_2_routine_item",
-        joinColumns = [JoinColumn(name = "routine_id")],
-        inverseJoinColumns = [JoinColumn(name = "routine_item_id")],
-    )
-    var routineItems: List<RoutineItemEntity>,
+    @OneToMany(mappedBy = "routine", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    var routineItems: List<RoutineItemEntity> = emptyList(),
 )

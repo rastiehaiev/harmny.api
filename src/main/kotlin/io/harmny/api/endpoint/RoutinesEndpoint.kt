@@ -34,7 +34,7 @@ class RoutinesEndpoint(
         @RequestHeader headers: HttpHeaders,
         @RequestBody request: RoutinesCreateRequest,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide(headers).flatMap { context ->
+        return contextProvider.provide().flatMap { context ->
             withContext(Dispatchers.IO) {
                 routinesService.create(context, request)
             }
@@ -50,7 +50,7 @@ class RoutinesEndpoint(
         @RequestHeader headers: HttpHeaders,
         request: RoutinesListRequest,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide(headers).map { context ->
+        return contextProvider.provide().map { context ->
             withContext(Dispatchers.IO) {
                 routinesService.list(context, request)
             }
@@ -66,7 +66,7 @@ class RoutinesEndpoint(
         @RequestHeader headers: HttpHeaders,
         @PathVariable("routineId") routineId: String,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide(headers).flatMap { context ->
+        return contextProvider.provide().flatMap { context ->
             withContext(Dispatchers.IO) {
                 routinesService.getDetails(context, routineId)
             }
@@ -83,7 +83,7 @@ class RoutinesEndpoint(
         @PathVariable("routineId") routineId: String,
         @RequestBody request: RoutinesUpdateRequest,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide(headers).flatMap { context ->
+        return contextProvider.provide().flatMap { context ->
             withContext(Dispatchers.IO) {
                 routinesService.update(context, routineId, request)
             }
@@ -99,7 +99,7 @@ class RoutinesEndpoint(
         @RequestHeader headers: HttpHeaders,
         @PathVariable("routineId") routineId: String,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide(headers).flatMap { context ->
+        return contextProvider.provide().flatMap { context ->
             withContext(Dispatchers.IO) {
                 routinesService.delete(context, routineId)
             }

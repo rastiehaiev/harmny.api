@@ -60,6 +60,16 @@ class RoutinesService(
             return Fail.input("routine.item.activity.ids.duplicated")
         }
 
+        val now = Instant.now()
+        val routineEntity = RoutineEntity(
+            id = UUID.randomUUID().toString(),
+            userId = context.userId,
+            applicationId = context.applicationId,
+            name = name,
+            createdAt = now,
+            lastUpdatedAt = now,
+        )
+
         var index = 0
         val activityEntitiesMap = findActivitiesForRoutine(context, requestedActivityIds).fix { return it.left() }
         val routineItems = request.items.orEmpty().mapNotNull { item -> item.activityId?.let { it to item.note } }
@@ -72,24 +82,14 @@ class RoutinesService(
                         index = index++,
                         note = note,
                         activity = activityEntity,
+                        routine = routineEntity,
                     )
                 } else {
                     null
                 }
             }
 
-        routinesItemsRepository.saveAll(routineItems)
-
-        val now = Instant.now()
-        val routineEntity = RoutineEntity(
-            id = UUID.randomUUID().toString(),
-            userId = context.userId,
-            applicationId = context.applicationId,
-            name = name,
-            createdAt = now,
-            lastUpdatedAt = now,
-            routineItems = routineItems,
-        )
+        routineEntity.routineItems = routineItems
         return routinesRepository.save(routineEntity).toRoutineDetails().right()
     }
 
@@ -128,7 +128,7 @@ class RoutinesService(
 
             var index = 0
             val requestedActivities = findActivitiesForRoutine(context, requestedActivityIds).fix { return it.left() }
-            val currentRoutineItemsPerOnActivityId = currentRoutineItems.associateBy { it.activity.id }
+            val currentRoutineItemsPerActivityId = currentRoutineItems.associateBy { it.activity.id }
             val newRoutineItems = request.items.orEmpty().mapNotNull { requestedItem ->
                 val requestedNote = requestedItem.note?.let { validateNote(it) }?.fix { return it.left() }
                 val activityId = requestedItem.activityId
@@ -136,7 +136,7 @@ class RoutinesService(
                 if (activityId == null) {
                     null
                 } else if (itemId == null) {
-                    val routineItemEntity = currentRoutineItemsPerOnActivityId[activityId]
+                    val routineItemEntity = currentRoutineItemsPerActivityId[activityId]
                     if (routineItemEntity != null) {
                         routineItemEntity.note = requestedNote
                         routineItemEntity.index = index++
@@ -151,6 +151,7 @@ class RoutinesService(
                                 index = index++,
                                 note = requestedNote,
                                 activity = activityEntity,
+                                routine = routineEntity,
                             )
                         }
                     }
@@ -159,13 +160,14 @@ class RoutinesService(
                     if (activityEntity == null) {
                         null
                     } else {
-                        val routineItemEntity = currentRoutineItemsPerOnActivityId[activityId]?.takeIf { it.id == itemId }
+                        val routineItemEntity = currentRoutineItemsPerActivityId[activityId]?.takeIf { it.id == itemId }
                         if (routineItemEntity == null) {
                             RoutineItemEntity(
                                 id = UUID.randomUUID().toString(),
                                 index = index++,
                                 note = requestedNote,
                                 activity = activityEntity,
+                                routine = routineEntity,
                             )
                         } else {
                             routineItemEntity.note = requestedNote

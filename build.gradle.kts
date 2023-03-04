@@ -24,6 +24,7 @@ val coroutinesVersion = "1.6.4"
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-security")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -36,6 +37,7 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
+    runtimeOnly("org.springdoc:springdoc-openapi-kotlin:1.6.14")
 
     implementation("io.arrow-kt:arrow-core:1.1.3")
 

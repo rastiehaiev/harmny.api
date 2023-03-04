@@ -2,6 +2,7 @@ package io.harmny.api.utils
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.right
 import arrow.core.rightIfNotNull
 import io.harmny.api.model.Fail
 import io.harmny.api.model.Fails
@@ -16,6 +17,24 @@ inline fun <A, B> Either<A, B>.fix(func: (A) -> B): B {
 
 fun String.reduceRepeatedSpaces(): String {
     return replace(multipleSpacesRegex, " ")
+}
+
+fun String.validateNumber(
+    key: String,
+    minValue: Int,
+    maxValue: Int,
+): Either<Fail, Int> {
+    return this.toIntOrNull()
+        ?.takeIf { it > minValue }
+        ?.takeIf { it < maxValue }
+        ?.right()
+        ?: return Fail.input(
+            key = key,
+            properties = mapOf(
+                "min_value" to minValue,
+                "max_value" to maxValue,
+            )
+        )
 }
 
 fun String?.parsePageNumber(): Either<Fail, Int> {
