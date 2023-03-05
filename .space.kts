@@ -1,4 +1,4 @@
-job("Build") {
+job("Build & Publish to Docker Registry") {
     startOn {
         gitPush {
             branchFilter {
@@ -6,9 +6,23 @@ job("Build") {
             }
         }
     }
-    container(displayName = "Build", image = "gradle:6.3-jdk11") {
-        kotlinScript { api ->
-            api.gradlew("build")
+    host("Build & Push Docker image") {
+
+        // assign project secrets to environment variables
+        env["SPACE_USER"] = Secrets("space_user")
+        env["SPACE_TOKEN"] = Secrets("space_token")
+        env["JWT_TOKEN"] = Secrets("jwt_token")
+
+        shellScript {
+            content = """
+                docker login harmony.registry.jetbrains.space --username ${'$'}SPACE_USER --password "${'$'}SPACE_TOKEN"
+            """
+        }
+
+        dockerBuildPush {
+            tags {
+                +"harmony.registry.jetbrains.space/p/harmny/containers/harmny.api:latest"
+            }
         }
     }
 }
