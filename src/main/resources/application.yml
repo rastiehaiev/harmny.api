@@ -4,15 +4,15 @@ spring:
   application:
     name: "harmny-api"
   datasource:
-    url: "jdbc:postgresql://localhost:5455/harmny"
-    username: "harmny"
-    password: "harmny"
+    url: "jdbc:postgresql://${SPRING_DATASOURCE_URL_HOST:localhost:5455}/harmny"
+    username: ${SPRING_DATASOURCE_USERNAME:harmny}
+    password: ${SPRING_DATASOURCE_PASSWORD:harmny}
     driver-class-name: org.postgresql.Driver
   flyway:
     enabled: on
-    url: "jdbc:postgresql://localhost:5455/harmny"
-    user: "harmny"
-    password: "harmny"
+    url: "jdbc:postgresql://${SPRING_DATASOURCE_URL_HOST:localhost:5455}/harmny"
+    user: ${SPRING_DATASOURCE_USERNAME:harmny}
+    password: ${SPRING_DATASOURCE_USERNAME:harmny}
     schemas: "public"
   jpa:
     open-in-view: off

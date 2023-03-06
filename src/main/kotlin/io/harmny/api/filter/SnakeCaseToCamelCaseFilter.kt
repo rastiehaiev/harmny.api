@@ -1,26 +1,17 @@
-package io.harmny.api.configuration
+package io.harmny.api.filter
 
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import java.util.Collections
 import java.util.Enumeration
 import java.util.Locale
-import javax.servlet.Filter
 import javax.servlet.FilterChain
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletRequestWrapper
 import javax.servlet.http.HttpServletResponse
 
-@Configuration
-class WebConfig {
-
-    @Bean
-    fun requestParamsConverter(): Filter = SnakeCaseToCamelCaseFilter()
-}
-
-private class SnakeCaseToCamelCaseFilter : OncePerRequestFilter() {
-
+@Component
+class SnakeCaseToCamelCaseFilter : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
