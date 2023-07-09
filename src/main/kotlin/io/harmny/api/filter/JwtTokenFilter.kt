@@ -9,6 +9,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.harmny.api.model.Context
 import io.harmny.api.model.ContextToken
 import io.harmny.api.model.Fail
+import io.harmny.api.properties.HarmnyProperties
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.http.HttpHeaders
@@ -22,10 +23,10 @@ import javax.servlet.http.HttpServletResponse
 @Component
 class JwtTokenFilter(
     private val objectMapper: ObjectMapper,
+    properties: HarmnyProperties,
 ) : OncePerRequestFilter() {
 
-    private val rawKey: String = "DAVLtjoTHQ3uhsGm2VstWj5M2JsdhhxQPy71BL11XQ4E5OpRgfCYjNPELkP1M6g"
-    private val key = Keys.hmacShaKeyFor(rawKey.toByteArray())
+    private val key = Keys.hmacShaKeyFor(properties.jwtKey.toByteArray())
     private val parser = Jwts.parserBuilder().setSigningKey(key).build()
 
     override fun doFilterInternal(

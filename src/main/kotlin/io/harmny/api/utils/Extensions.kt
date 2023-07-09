@@ -75,22 +75,22 @@ fun String.validateName(
     return nameNormalised.takeIf { it.matches(nameRegex) }
         .rightIfNotNull {
             Fails.input(
-                key = "$key.invalid",
+                key = "$key.invalid.pattern.mismatch",
                 properties = mapOf("supported_pattern" to NAME_PATTERN),
             )
         }.flatMap { resultName ->
-            resultName.takeIf { it.length < maxLength }
+            resultName.takeIf { it.length <= maxLength }
                 .rightIfNotNull {
                     Fails.input(
-                        key = "$key.invalid",
+                        key = "$key.invalid.too.long",
                         properties = mapOf("max_length" to maxLength),
                     )
                 }
         }.flatMap { resultName ->
-            resultName.takeIf { it.length > minLength }
+            resultName.takeIf { it.length >= minLength }
                 .rightIfNotNull {
                     Fails.input(
-                        key = "$key.invalid",
+                        key = "$key.invalid.too.short",
                         properties = mapOf("min_length" to minLength),
                     )
                 }

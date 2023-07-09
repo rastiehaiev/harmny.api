@@ -55,6 +55,34 @@ class ActivityRepetitionsService(
                 maxValue = 1000000,
             ).fix { fail -> return fail.left() }
         }
+        val distance = request.distance?.let {
+            it.validateNumber(
+                key = "activity.repetition.distance.invalid",
+                minValue = 0,
+                maxValue = 1_000_000,
+            ).fix { fail -> return fail.left() }
+        }
+        val mood = request.mood?.let {
+            it.validateNumber(
+                key = "activity.repetition.mood.invalid",
+                minValue = 1,
+                maxValue = 10,
+            ).fix { fail -> return fail.left() }
+        }
+        val painLevel = request.mood?.let {
+            it.validateNumber(
+                key = "activity.repetition.pain.level.invalid",
+                minValue = 1,
+                maxValue = 10,
+            ).fix { fail -> return fail.left() }
+        }
+        val heartRate = request.heartRate?.let {
+            it.validateNumber(
+                key = "activity.repetition.heart.rate.invalid",
+                minValue = 10,
+                maxValue = 300,
+            ).fix { fail -> return fail.left() }
+        }
 
         val timeSpentMs = request.timeSpentMs?.let {
             it.validateNumber(
@@ -77,6 +105,10 @@ class ActivityRepetitionsService(
             count = count,
             caloriesBurnt = caloriesBurnt,
             timeSpentMs = timeSpentMs,
+            distance = distance,
+            heartRate = heartRate,
+            mood = mood,
+            painLevel = painLevel,
             activity = activity,
             completed = completed,
         )

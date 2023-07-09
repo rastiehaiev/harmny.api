@@ -52,7 +52,6 @@ class ActivitiesEndpoint(
     @Operation(summary = "List activities.")
     @GetMapping(path = ["/activities"])
     suspend fun listActivities(
-        @RequestHeader("Authorization") authorization: String,
         request: ActivitiesListRequest,
     ): ResponseEntity<out Any> {
         return contextProvider.provide().map { context ->

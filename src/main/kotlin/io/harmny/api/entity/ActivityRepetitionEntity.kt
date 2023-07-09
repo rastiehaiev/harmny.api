@@ -21,6 +21,14 @@ data class ActivityRepetitionEntity(
     val count: Int?,
     @Column(name = "calories_burnt")
     val caloriesBurnt: Int?,
+    @Column(name = "heart_rate")
+    val heartRate: Int?,
+    @Column(name = "mood")
+    val mood: Int?,
+    @Column(name = "pain_level")
+    val painLevel: Int?,
+    @Column(name = "distance")
+    val distance: Int?,
     @Column(name = "completed")
     var completed: Boolean = true,
     @ManyToOne(fetch = FetchType.LAZY)

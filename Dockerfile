@@ -17,6 +17,6 @@ COPY --from=builder /app/build/resources build/resources/
 COPY --from=builder /app/build/classes/kotlin/main build/classes/
 COPY --from=builder /app/scripts/docker/ build/
 
-EXPOSE 8081
+EXPOSE 9090
 
 ENTRYPOINT ["sh", "build/start.sh"]

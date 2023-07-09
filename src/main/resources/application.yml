@@ -18,4 +18,9 @@ spring:
     open-in-view: off
 
 server:
-  port: 8080
+  port: 9090
+
+harmny:
+  mode: ${HARMNY_MODE:development}
+  jwt-key: ${HARMNY_JWT_KEY:DAVLtjoTHQ3uhsGm2VstWj5M2JsdhhxQPy71BL11XQ4E5OpRgfCYjNPELkP1M6g}
+  cors-allowed-origins: ${HARMNY_CORS_ALLOWED_ORIGINS:https://app.harmny.io}

@@ -27,13 +27,17 @@ class ActivitiesService(
     private val activitiesRepository: ActivitiesRepository,
 ) {
 
+    companion object {
+        val activitiesComparator = compareBy<Activity>({ !it.group }, { it.name.lowercase() })
+    }
+
     fun list(context: Context): List<Activity> {
         val activityEntities = activitiesRepository.findAllByUserId(context.userId)
         val activitiesGroupedByParent = activityEntities.groupByTo(HashMap()) { it.parentActivityId }
         val rootActivities = activitiesGroupedByParent[null] ?: emptyList()
         return rootActivities
-            .sortedBy { it.name }
             .map { activityEntity -> activityEntity.toActivity(activitiesGroupedByParent) }
+            .sortedWith(activitiesComparator)
     }
 
     @Transactional
@@ -86,10 +90,11 @@ class ActivitiesService(
         }
 
         // prone to raise conditions [HARMNY-T-30]
-        activityEntity.parentActivityId = parentActivityId
         request.name?.let {
             validateName(context, it, parentActivityId).fix { fail -> return fail.left() }
         }?.also { activityEntity.name = it }
+
+        activityEntity.parentActivityId = parentActivityId
         if (activityEntity != activityEntityCopy) {
             activityEntity.lastUpdatedAt = Instant.now()
             activitiesRepository.save(activityEntity)
@@ -126,7 +131,7 @@ class ActivitiesService(
         return (name ?: "")
             .trim()
             .reduceRepeatedSpaces()
-            .validateName("activity.name", minLength = 1, maxLength = 100)
+            .validateName("activity.name", minLength = 2, maxLength = 100)
             .flatMap { validatedName ->
                 if (activityByNameAlreadyExists(context, parentActivityId, validatedName)) {
                     validatedName.right()
@@ -187,6 +192,6 @@ class ActivitiesService(
         activitiesGroupedByParent: Map<String?, MutableList<ActivityEntity>>,
     ): List<Activity>? {
         val children = activitiesGroupedByParent[activityId] ?: return null
-        return children.map { it.toActivity(activitiesGroupedByParent) }.sortedBy { it.name }
+        return children.map { it.toActivity(activitiesGroupedByParent) }.sortedWith(activitiesComparator)
     }
 }

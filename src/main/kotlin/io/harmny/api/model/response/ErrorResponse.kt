@@ -9,6 +9,6 @@ data class ErrorResponse(
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 data class ErrorObject(
     val type: String,
-    val description: String?,
-    val properties: Map<String, Any>?,
+    val description: String? = null,
+    val properties: Map<String, Any>? = null,
 )

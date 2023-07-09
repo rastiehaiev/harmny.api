@@ -10,5 +10,9 @@ data class ActivityRepetitionsCreateRequest(
     val timeSpentMs: String?,
     val count: String?,
     val caloriesBurnt: String?,
+    val heartRate: String?,
+    val mood: String?,
+    val painLevel: String?,
+    val distance: String?,
     val completed: String?,
 )
