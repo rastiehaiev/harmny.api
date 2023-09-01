@@ -1,7 +1,7 @@
 job("Build & Publish to Docker Registry") {
     startOn {
         gitPush {
-            branchFilter {
+            anyBranchMatching {
                 +"refs/heads/main"
             }
         }
@@ -9,9 +9,8 @@ job("Build & Publish to Docker Registry") {
     host("Build & Push Docker image") {
 
         // assign project secrets to environment variables
-        env["SPACE_USER"] = Secrets("space_user")
-        env["SPACE_TOKEN"] = Secrets("space_token")
-        env["HARMNY_JWT_KEY"] = Secrets("jwt_token")
+        env["SPACE_USER"] = "{{ project:space_user }}"
+        env["SPACE_TOKEN"] = "{{ project:space_token }}"
 
         shellScript {
             content = """

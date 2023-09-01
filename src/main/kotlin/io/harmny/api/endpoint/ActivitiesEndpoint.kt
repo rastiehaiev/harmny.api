@@ -1,7 +1,7 @@
 package io.harmny.api.endpoint
 
-import arrow.core.flatMap
-import io.harmny.api.instruments.ContextProvider
+import io.harmny.api.annotation.CurrentContext
+import io.harmny.api.model.Context
 import io.harmny.api.model.asResponse
 import io.harmny.api.model.request.ActivitiesCreateRequest
 import io.harmny.api.model.request.ActivitiesListRequest
@@ -13,7 +13,6 @@ import io.harmny.api.service.ActivityRepetitionsService
 import io.swagger.v3.oas.annotations.Operation
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -23,12 +22,10 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestHeader
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class ActivitiesEndpoint(
-    private val contextProvider: ContextProvider,
     private val activitiesService: ActivitiesService,
     private val activityRepetitionsService: ActivityRepetitionsService,
 ) {
@@ -36,13 +33,11 @@ class ActivitiesEndpoint(
     @Operation(summary = "Create activity.")
     @PostMapping(path = ["/activities"])
     suspend fun createActivity(
-        @RequestHeader headers: HttpHeaders,
+        @CurrentContext context: Context,
         @RequestBody request: ActivitiesCreateRequest,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide().flatMap { context ->
-            withContext(Dispatchers.IO) {
-                activitiesService.create(context, request)
-            }
+        return withContext(Dispatchers.IO) {
+            activitiesService.create(context, request)
         }.fold(
             { fail -> fail.asResponse() },
             { activity -> ResponseEntity.status(HttpStatus.CREATED).body(activity) },
@@ -52,29 +47,23 @@ class ActivitiesEndpoint(
     @Operation(summary = "List activities.")
     @GetMapping(path = ["/activities"])
     suspend fun listActivities(
+        @CurrentContext context: Context,
         request: ActivitiesListRequest,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide().map { context ->
-            withContext(Dispatchers.IO) {
-                activitiesService.list(context)
-            }
-        }.fold(
-            { fail -> fail.asResponse() },
-            { activities -> ResponseEntity.ok(activities) },
-        )
+        return withContext(Dispatchers.IO) {
+            ResponseEntity.ok(activitiesService.list(context))
+        }
     }
 
     @Operation(summary = "Update activity.")
     @PutMapping(path = ["/activities/{activityId}"])
     suspend fun updateActivity(
-        @RequestHeader headers: HttpHeaders,
+        @CurrentContext context: Context,
         @PathVariable("activityId") activityId: String,
         @RequestBody request: ActivitiesUpdateRequest,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide().flatMap { context ->
-            withContext(Dispatchers.IO) {
-                activitiesService.update(context, activityId, request)
-            }
+        return withContext(Dispatchers.IO) {
+            activitiesService.update(context, activityId, request)
         }.fold(
             { fail -> fail.asResponse() },
             { activity -> ResponseEntity.ok(activity) },
@@ -84,13 +73,11 @@ class ActivitiesEndpoint(
     @Operation(summary = "Delete activity.")
     @DeleteMapping(path = ["/activities/{activityId}"])
     suspend fun deleteActivity(
-        @RequestHeader headers: HttpHeaders,
+        @CurrentContext context: Context,
         @PathVariable("activityId") activityId: String,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide().flatMap { context ->
-            withContext(Dispatchers.IO) {
-                activitiesService.delete(context, activityId)
-            }
+        return withContext(Dispatchers.IO) {
+            activitiesService.delete(context, activityId)
         }.fold(
             { fail -> fail.asResponse() },
             { activity -> ResponseEntity.ok(activity) },
@@ -100,14 +87,12 @@ class ActivitiesEndpoint(
     @Operation(summary = "List activity repetitions.")
     @GetMapping(path = ["/activities/{activityId}/repetitions"])
     suspend fun listActivityRepetitions(
-        @RequestHeader headers: HttpHeaders,
+        @CurrentContext context: Context,
         @PathVariable("activityId") activityId: String,
         request: ActivityRepetitionsListRequest,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide().flatMap { context ->
-            withContext(Dispatchers.IO) {
-                activityRepetitionsService.list(context, activityId, request)
-            }
+        return withContext(Dispatchers.IO) {
+            activityRepetitionsService.list(context, activityId, request)
         }.fold(
             { fail -> fail.asResponse() },
             { page -> ResponseEntity.ok(page) },
@@ -117,14 +102,12 @@ class ActivitiesEndpoint(
     @Operation(summary = "Create activity repetition.")
     @PostMapping(path = ["/activities/{activityId}/repetitions"])
     suspend fun createActivityRepetition(
-        @RequestHeader headers: HttpHeaders,
+        @CurrentContext context: Context,
         @PathVariable("activityId") activityId: String,
         @RequestBody request: ActivityRepetitionsCreateRequest,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide().flatMap { context ->
-            withContext(Dispatchers.IO) {
-                activityRepetitionsService.create(context, activityId, request)
-            }
+        return withContext(Dispatchers.IO) {
+            activityRepetitionsService.create(context, activityId, request)
         }.fold(
             { fail -> fail.asResponse() },
             { repetition -> ResponseEntity.ok(repetition) },
@@ -134,14 +117,12 @@ class ActivitiesEndpoint(
     @Operation(summary = "Complete activity repetition.")
     @PatchMapping(path = ["/activities/{activityId}/repetitions/{repetitionId}"])
     suspend fun completeActivityRepetition(
-        @RequestHeader headers: HttpHeaders,
+        @CurrentContext context: Context,
         @PathVariable("activityId") activityId: String,
         @PathVariable("repetitionId") repetitionId: String,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide().flatMap { context ->
-            withContext(Dispatchers.IO) {
-                activityRepetitionsService.complete(context, activityId, repetitionId)
-            }
+        return withContext(Dispatchers.IO) {
+            activityRepetitionsService.complete(context, activityId, repetitionId)
         }.fold(
             { fail -> fail.asResponse() },
             { repetition -> ResponseEntity.ok(repetition) },
@@ -151,14 +132,12 @@ class ActivitiesEndpoint(
     @Operation(summary = "Delete activity repetition.")
     @DeleteMapping(path = ["/activities/{activityId}/repetitions/{repetitionId}"])
     suspend fun deleteActivityRepetition(
-        @RequestHeader headers: HttpHeaders,
+        @CurrentContext context: Context,
         @PathVariable("activityId") activityId: String,
         @PathVariable("repetitionId") repetitionId: String,
     ): ResponseEntity<out Any> {
-        return contextProvider.provide().flatMap { context ->
-            withContext(Dispatchers.IO) {
-                activityRepetitionsService.delete(context, activityId, repetitionId)
-            }
+        return withContext(Dispatchers.IO) {
+            activityRepetitionsService.delete(context, activityId, repetitionId)
         }.fold(
             { fail -> fail.asResponse() },
             { repetition -> ResponseEntity.ok(repetition) },

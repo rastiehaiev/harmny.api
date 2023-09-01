@@ -22,5 +22,7 @@ server:
 
 harmny:
   mode: ${HARMNY_MODE:development}
-  jwt-key: ${HARMNY_JWT_KEY:DAVLtjoTHQ3uhsGm2VstWj5M2JsdhhxQPy71BL11XQ4E5OpRgfCYjNPELkP1M6g}
-  cors-allowed-origins: ${HARMNY_CORS_ALLOWED_ORIGINS:https://app.harmny.io}
+  auth:
+    token-secret: ${HARMNY_AUTH_TOKEN_SECRET}
+  cors:
+    allowed-origins: ${HARMNY_CORS_ALLOWED_ORIGINS:https://app.harmny.io,http://localhost:5173}

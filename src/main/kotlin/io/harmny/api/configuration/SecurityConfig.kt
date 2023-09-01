@@ -43,7 +43,7 @@ class SecurityConfig(
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
-        configuration.allowedOrigins = properties.corsAllowedOrigins.split(",").map { it.trim() }
+        configuration.allowedOrigins = properties.cors.allowedOrigins.split(",").map { it.trim() }
         configuration.allowedMethods = listOf("GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD")
         configuration.allowedHeaders = listOf("*")
         configuration.maxAge = 3600L

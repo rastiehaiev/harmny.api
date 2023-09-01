@@ -6,6 +6,14 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConstructorBinding
 @ConfigurationProperties(prefix = "harmny")
 data class HarmnyProperties(
-    val jwtKey: String,
-    val corsAllowedOrigins: String,
+    val cors: Cors,
+    val auth: Auth,
+)
+
+data class Cors(
+    val allowedOrigins: String,
+)
+
+data class Auth(
+    val tokenSecret: String,
 )
