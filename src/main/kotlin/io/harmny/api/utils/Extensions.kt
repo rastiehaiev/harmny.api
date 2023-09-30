@@ -25,8 +25,8 @@ fun String.validateNumber(
     maxValue: Int,
 ): Either<Fail, Int> {
     return this.toIntOrNull()
-        ?.takeIf { it > minValue }
-        ?.takeIf { it < maxValue }
+        ?.takeIf { it >= minValue }
+        ?.takeIf { it <= maxValue }
         ?.right()
         ?: return Fail.input(
             key = key,

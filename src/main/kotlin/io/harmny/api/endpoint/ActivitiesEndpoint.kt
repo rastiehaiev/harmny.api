@@ -8,6 +8,8 @@ import io.harmny.api.model.request.ActivitiesListRequest
 import io.harmny.api.model.request.ActivitiesUpdateRequest
 import io.harmny.api.model.request.ActivityRepetitionsCreateRequest
 import io.harmny.api.model.request.ActivityRepetitionsListRequest
+import io.harmny.api.model.request.ActivityRepetitionsStartRequest
+import io.harmny.api.model.request.ActivityRepetitionsUpdateRequest
 import io.harmny.api.service.ActivitiesService
 import io.harmny.api.service.ActivityRepetitionsService
 import io.swagger.v3.oas.annotations.Operation
@@ -17,7 +19,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -99,6 +100,21 @@ class ActivitiesEndpoint(
         )
     }
 
+    @Operation(summary = "Get activity repetition.")
+    @GetMapping(path = ["/activities/{activityId}/repetitions/{repetitionId}"])
+    suspend fun getActivityRepetition(
+        @CurrentContext context: Context,
+        @PathVariable("activityId") activityId: String,
+        @PathVariable("repetitionId") repetitionId: String,
+    ): ResponseEntity<out Any> {
+        return withContext(Dispatchers.IO) {
+            activityRepetitionsService.get(context, activityId, repetitionId)
+        }.fold(
+            { fail -> fail.asResponse() },
+            { repetition -> ResponseEntity.ok(repetition) },
+        )
+    }
+
     @Operation(summary = "Create activity repetition.")
     @PostMapping(path = ["/activities/{activityId}/repetitions"])
     suspend fun createActivityRepetition(
@@ -114,15 +130,47 @@ class ActivitiesEndpoint(
         )
     }
 
-    @Operation(summary = "Complete activity repetition.")
-    @PatchMapping(path = ["/activities/{activityId}/repetitions/{repetitionId}"])
-    suspend fun completeActivityRepetition(
+    @Operation(summary = "Start activity repetition.")
+    @PostMapping(path = ["/activities/{activityId}/repetitions/{repetitionId}/start"])
+    suspend fun startActivityRepetition(
+        @CurrentContext context: Context,
+        @PathVariable("activityId") activityId: String,
+        @PathVariable("repetitionId") repetitionId: String,
+        @RequestBody request: ActivityRepetitionsStartRequest?,
+    ): ResponseEntity<out Any> {
+        return withContext(Dispatchers.IO) {
+            activityRepetitionsService.start(context, activityId, repetitionId, request)
+        }.fold(
+            { fail -> fail.asResponse() },
+            { repetition -> ResponseEntity.ok(repetition) },
+        )
+    }
+
+    @Operation(summary = "Pause activity repetition.")
+    @PostMapping(path = ["/activities/{activityId}/repetitions/{repetitionId}/pause"])
+    suspend fun pauseActivityRepetition(
         @CurrentContext context: Context,
         @PathVariable("activityId") activityId: String,
         @PathVariable("repetitionId") repetitionId: String,
     ): ResponseEntity<out Any> {
         return withContext(Dispatchers.IO) {
-            activityRepetitionsService.complete(context, activityId, repetitionId)
+            activityRepetitionsService.pause(context, activityId, repetitionId)
+        }.fold(
+            { fail -> fail.asResponse() },
+            { repetition -> ResponseEntity.ok(repetition) },
+        )
+    }
+
+    @Operation(summary = "Update activity repetition.")
+    @PutMapping(path = ["/activities/{activityId}/repetitions/{repetitionId}"])
+    suspend fun updateActivityRepetition(
+        @CurrentContext context: Context,
+        @PathVariable("activityId") activityId: String,
+        @PathVariable("repetitionId") repetitionId: String,
+        @RequestBody request: ActivityRepetitionsUpdateRequest,
+    ): ResponseEntity<out Any> {
+        return withContext(Dispatchers.IO) {
+            activityRepetitionsService.update(context, activityId, repetitionId, request)
         }.fold(
             { fail -> fail.asResponse() },
             { repetition -> ResponseEntity.ok(repetition) },

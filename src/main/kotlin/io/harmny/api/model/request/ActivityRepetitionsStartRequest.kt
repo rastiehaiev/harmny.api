@@ -6,9 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class ActivityRepetitionsCreateRequest(
-    val timeSpentMs: String?,
-    val startedAt: String?,
+data class ActivityRepetitionsStartRequest(
     val count: String?,
     val caloriesBurnt: String?,
     val distance: String?,
@@ -16,5 +14,4 @@ data class ActivityRepetitionsCreateRequest(
     val mood: String?,
     val painLevel: String?,
     val complexity: String?,
-    val started: String?,
 )

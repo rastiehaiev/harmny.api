@@ -15,20 +15,30 @@ data class ActivityRepetitionEntity(
     val applicationId: String?,
     @Column(name = "created_at")
     val createdAt: Instant,
+    @Column(name = "started_at")
+    val startedAt: Instant,
+    @Column(name = "last_started_at")
+    var lastStartedAt: Instant?,
+    @Column(name = "started")
+    var started: Boolean? = null,
     @Column(name = "time_spent_ms")
-    val timeSpentMs: Int?,
+    var timeSpentMs: Int?,
     @Column(name = "count")
-    val count: Int?,
+    var count: Int?,
     @Column(name = "calories_burnt")
-    val caloriesBurnt: Int?,
+    var caloriesBurnt: Int?,
     @Column(name = "heart_rate")
-    val heartRate: Int?,
+    var heartRate: Int?,
     @Column(name = "mood")
-    val mood: Int?,
+    var mood: Int?,
     @Column(name = "pain_level")
-    val painLevel: Int?,
+    var painLevel: Int?,
+    @Column(name = "complexity")
+    var complexity: Int?,
     @Column(name = "distance")
-    val distance: Int?,
+    var distance: Int?,
+    @Column(name = "restarts")
+    var restarts: Int? = null,
     @Column(name = "completed")
     var completed: Boolean = true,
     @ManyToOne(fetch = FetchType.LAZY)

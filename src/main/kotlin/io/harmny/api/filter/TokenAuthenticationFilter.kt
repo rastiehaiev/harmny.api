@@ -64,6 +64,7 @@ class TokenAuthenticationFilter(
         val body = responseEntity.body.let { objectMapper.writeValueAsString(it) }
 
         addHeader(HttpHeaders.CONTENT_TYPE, "application/json")
+        addHeader("X-Auth-Failed-Error-Code", fail.type)
         status = responseEntity.statusCodeValue
         writer.write(body)
         writer.flush()

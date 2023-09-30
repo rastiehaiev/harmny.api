@@ -1,8 +1,8 @@
-job("Build & Publish to Docker Registry") {
+job("API Deploy") {
     startOn {
         gitPush {
             anyBranchMatching {
-                +"refs/heads/main"
+                +"refs/heads/HARMNY-T-59"
             }
         }
     }

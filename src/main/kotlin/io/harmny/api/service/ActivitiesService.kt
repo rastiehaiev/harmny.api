@@ -83,10 +83,12 @@ class ActivitiesService(
             .takeIf { !it.equals("root", ignoreCase = true) }
             ?.let { findValidParent(context, it).fix { fail -> return fail.left() }.id }
 
-        val parentActivityDimension = parentActivityId?.let { activitiesRepository.findParentsCount(it) } ?: 0
-        val activityDownDimension = if (!activityEntity.group) 0 else activitiesRepository.findChildrenCount(activityId)
-        if (parentActivityDimension + activityDownDimension >= 4) {
-            return Fail.input("activity.dimension.exceeded")
+        if (parentActivityId != activityEntity.parentActivityId) {
+            val parentActivityDimension = parentActivityId?.let { activitiesRepository.findParentsCount(it) } ?: 0
+            val activityDownDimension = if (!activityEntity.group) 0 else activitiesRepository.findChildrenCount(activityId)
+            if (parentActivityDimension + activityDownDimension > 4) {
+                return Fail.input("activity.dimension.exceeded")
+            }
         }
 
         // prone to raise conditions [HARMNY-T-30]

@@ -9,8 +9,18 @@ import java.time.Instant
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
 data class ActivityRepetition(
     val id: String,
-    val timeSpent: Int?,
+    val createdAt: Instant,
+    val startedAt: Instant,
+    var lastStartedAt: Instant?,
     val count: Int?,
     val caloriesBurnt: Int?,
-    val time: Instant,
+    var started: Boolean? = null,
+    var timeSpentMs: Int?,
+    var heartRate: Int?,
+    var mood: Int?,
+    var painLevel: Int?,
+    var complexity: Int?,
+    var distance: Int?,
+    var restarts: Int?,
+    var completed: Boolean = true,
 )
