@@ -266,6 +266,7 @@ class ActivityRepetitionsService(
         repetitionId: String,
     ): Either<Fail, ActivityRepetition> {
         val activityRepetition = findActivityRepetition(context, activityId, repetitionId).fix { return it.left() }
+        activityRepetition.activity.currentRepetition = null
         activityRepetitionsRepository.delete(activityRepetition)
         return activityRepetition.toModel().right()
     }
@@ -369,6 +370,7 @@ class ActivityRepetitionsService(
             complexity = complexity,
             distance = distance,
             restarts = restarts,
+            completed = completed,
         )
     }
 }
