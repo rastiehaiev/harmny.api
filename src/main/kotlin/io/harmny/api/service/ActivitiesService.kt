@@ -7,6 +7,8 @@ import arrow.core.right
 import arrow.core.rightIfNotNull
 import io.harmny.api.entity.ActivityEntity
 import io.harmny.api.model.Activity
+import io.harmny.api.model.ActivityLineChartMetricData
+import io.harmny.api.model.ActivityStatistics
 import io.harmny.api.model.Context
 import io.harmny.api.model.Fail
 import io.harmny.api.model.Fails
@@ -19,6 +21,9 @@ import io.harmny.api.utils.validateName
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 import javax.transaction.Transactional
 
@@ -28,7 +33,9 @@ class ActivitiesService(
 ) {
 
     companion object {
-        val activitiesComparator = compareBy<Activity>({ !it.group }, { it.name.lowercase() })
+        private val activitiesComparator = compareBy<Activity>({ !it.group }, { it.name.lowercase() })
+        private val defaultDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        private val humanReadableDateFormat = DateTimeFormatter.ofPattern("MMM dd")
     }
 
     fun list(context: Context): List<Activity> {
@@ -85,7 +92,8 @@ class ActivitiesService(
 
         if (parentActivityId != activityEntity.parentActivityId) {
             val parentActivityDimension = parentActivityId?.let { activitiesRepository.findParentsCount(it) } ?: 0
-            val activityDownDimension = if (!activityEntity.group) 0 else activitiesRepository.findChildrenCount(activityId)
+            val activityDownDimension =
+                if (!activityEntity.group) 0 else activitiesRepository.findChildrenCount(activityId)
             if (parentActivityDimension + activityDownDimension > 4) {
                 return Fail.input("activity.dimension.exceeded")
             }
@@ -116,6 +124,68 @@ class ActivitiesService(
         }
     }
 
+    fun getStatistics(context: Context, activityId: String): Either<Fail, ActivityStatistics> {
+        return findById(context, activityId).map { activityEntity ->
+            val now = LocalDateTime.now()
+            val monthAgo = now.minusDays(31)
+            activitiesRepository.findStatistics(activityEntity.id, monthAgo, now)
+        }
+    }
+
+    fun getLineChartMetric(context: Context, activityId: String): Either<Fail, ActivityLineChartMetricData> {
+        return findNotGroupById(context, activityId).map { activityEntity ->
+            val now = LocalDateTime.now()
+            val monthAgo = now.minusDays(31)
+
+            val metricDataMap = activitiesRepository.findMetricLineChart(
+                activityEntity.id,
+                context.applicationId,
+                startTime = monthAgo,
+                endTime = now,
+            ).associateBy { it.truncatedDate }
+
+            val localDatesWithinTimeRange = getLocalDatesWithinTimeRange(monthAgo, now)
+            val sqlTruncatedDates = localDatesWithinTimeRange.map { it.toDefaultFormat() }
+
+            val durations = sqlTruncatedDates.map { dateString ->
+                metricDataMap[dateString]?.timeSpentMsTotal?.let { it / 1000 }?.toInt() ?: 0
+            }
+            val counts = sqlTruncatedDates.map { dateString ->
+                metricDataMap[dateString]?.countTotal ?: 0
+            }
+            ActivityLineChartMetricData(
+                names = localDatesWithinTimeRange.map { it.toHumanReadableFormat() },
+                durationsInSeconds = durations.takeIf { it.any { value -> value != 0 } },
+                counts = counts.takeIf { it.any { value -> value != 0 } },
+            )
+        }
+    }
+
+    private fun getLocalDatesWithinTimeRange(
+        startDate: LocalDateTime,
+        endDate: LocalDateTime,
+    ): List<LocalDate> {
+        val startLocalDate = startDate.plusDays(1).toLocalDate()
+        val endLocalDate = endDate.toLocalDate()
+
+        val dateList = mutableListOf<LocalDate>()
+
+        var currentDate = startLocalDate
+        while (!currentDate.isAfter(endLocalDate)) {
+            dateList.add(currentDate)
+            currentDate = currentDate.plusDays(1)
+        }
+        return dateList
+    }
+
+    private fun LocalDate.toHumanReadableFormat(): String {
+        return format(humanReadableDateFormat)
+    }
+
+    private fun LocalDate.toDefaultFormat(): String {
+        return format(defaultDateFormat)
+    }
+
     private fun findValidParent(context: Context, id: String): Either<Fail, ActivityEntity> {
         return findById(context, id).flatMap { activity ->
             activity.takeIf { it.group }?.right() ?: Fail.input("activity.parent.invalid")
@@ -127,6 +197,13 @@ class ActivitiesService(
             ?.takeIf { it.userId == context.userId }
             ?.takeIf { context.applicationId == null || it.applicationId == context.applicationId }
             .rightIfNotNull { Fails.resource("activity.not.found") }
+    }
+
+    private fun findNotGroupById(context: Context, activityId: String): Either<Fail, ActivityEntity> {
+        return findById(context, activityId)
+            .flatMap { entity ->
+                entity.takeIf { !it.group }?.right() ?: Fail.input("activity.group.is.allowed")
+            }
     }
 
     private fun validateName(context: Context, name: String?, parentActivityId: String?): Either<Fail, String> {

@@ -1,10 +1,13 @@
 package io.harmny.api.repository
 
 import io.harmny.api.entity.ActivityEntity
+import io.harmny.api.entity.ActivityLineChartMetricItem
+import io.harmny.api.model.ActivityStatistics
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 
 @Repository
 interface ActivitiesRepository : CrudRepository<ActivityEntity, String> {
@@ -60,4 +63,19 @@ interface ActivitiesRepository : CrudRepository<ActivityEntity, String> {
     """, nativeQuery = true
     )
     fun findByIdWithChildren(@Param("id") id: String): List<ActivityEntity>
+
+    @Query(name = "find_activity_statistics", nativeQuery = true)
+    fun findStatistics(
+        @Param("id") id: String,
+        @Param("startTime") startTime: LocalDateTime,
+        @Param("endTime") endTime: LocalDateTime,
+    ): ActivityStatistics
+
+    @Query(name = "find_activity_metric_line_chart", nativeQuery = true)
+    fun findMetricLineChart(
+        @Param("activity_id") id: String,
+        @Param("application_id") applicationId: String?,
+        @Param("startTime") startTime: LocalDateTime,
+        @Param("endTime") endTime: LocalDateTime,
+    ): List<ActivityLineChartMetricItem>
 }

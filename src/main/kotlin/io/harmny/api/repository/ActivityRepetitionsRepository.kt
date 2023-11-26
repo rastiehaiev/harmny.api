@@ -16,9 +16,11 @@ interface ActivityRepetitionsRepository : JpaRepository<ActivityRepetitionEntity
                 FROM activity_repetition
             WHERE activity_id=:activity_id 
                 AND (:application_id IS NULL OR application_id = :application_id)
+                AND completed IS TRUE
+            ORDER BY started_at DESC
         """, nativeQuery = true
     )
-    fun findAllByContextAndReadyTrue(
+    fun findAllByContextAndCompletedTrue(
         @Param("application_id") applicationId: String?,
         @Param("activity_id") activityId: String,
         pageable: Pageable,
@@ -29,10 +31,11 @@ interface ActivityRepetitionsRepository : JpaRepository<ActivityRepetitionEntity
             SELECT COUNT(*) 
                 FROM activity_repetition
             WHERE activity_id=:activity_id 
-                AND (:application_id IS NULL OR application_id = :application_id)
+                AND (:application_id IS NULL OR application_id = :application_id) 
+                AND completed IS TRUE
         """, nativeQuery = true
     )
-    fun countAllByContextAndReadyTrue(
+    fun countAllByContextAndCompletedTrue(
         @Param("application_id") applicationId: String?,
         @Param("activity_id") activityId: String,
     ): Long

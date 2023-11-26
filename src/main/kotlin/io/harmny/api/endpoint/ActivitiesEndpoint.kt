@@ -191,4 +191,32 @@ class ActivitiesEndpoint(
             { repetition -> ResponseEntity.ok(repetition) },
         )
     }
+
+    @Operation(summary = "Get activity statistics.")
+    @GetMapping(path = ["/activities/{activityId}/statistics"])
+    suspend fun getActivityStatistics(
+        @CurrentContext context: Context,
+        @PathVariable("activityId") activityId: String,
+    ): ResponseEntity<out Any> {
+        return withContext(Dispatchers.IO) {
+            activitiesService.getStatistics(context, activityId)
+        }.fold(
+            { fail -> fail.asResponse() },
+            { statistics -> ResponseEntity.ok(statistics) },
+        )
+    }
+
+    @Operation(summary = "Get activity line-chart metric.")
+    @GetMapping(path = ["/activities/{activityId}/metrics/line-chart"])
+    suspend fun getActivityMetricLineChart(
+        @CurrentContext context: Context,
+        @PathVariable("activityId") activityId: String,
+    ): ResponseEntity<out Any> {
+        return withContext(Dispatchers.IO) {
+            activitiesService.getLineChartMetric(context, activityId)
+        }.fold(
+            { fail -> fail.asResponse() },
+            { statistics -> ResponseEntity.ok(statistics) },
+        )
+    }
 }

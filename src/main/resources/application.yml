@@ -23,6 +23,6 @@ server:
 harmny:
   mode: ${HARMNY_MODE:development}
   auth:
-    token-secret: ${HARMNY_AUTH_TOKEN_SECRET}
+    token-secret: ${HARMNY_AUTH_TOKEN_SECRET:TJTf2cnB+Up1e8dmBjYZ93NJ4IEAoIwrpn1GolOk7DW0mt1R1fGRtcm3FJd9HVT4QOUkwsxzplJYOGW2LK/+aQ==}
   cors:
     allowed-origins: ${HARMNY_CORS_ALLOWED_ORIGINS:https://app.harmny.io,http://localhost:5173}

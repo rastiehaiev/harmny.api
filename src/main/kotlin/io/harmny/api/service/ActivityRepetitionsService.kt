@@ -46,14 +46,14 @@ class ActivityRepetitionsService(
         findActivity(context, activityId).fix { return it.left() }
         val pageNumber = request.pageNumber.parsePageNumber().fix { return it.left() }
         val pageSize = request.pageSize.parsePageSize(defaultPageSize = 20, maxPageSize = 50).fix { return it.left() }
-        val count = activityRepetitionsRepository.countAllByContextAndReadyTrue(context.applicationId, activityId)
+        val count = activityRepetitionsRepository.countAllByContextAndCompletedTrue(context.applicationId, activityId)
         if (count == 0L) {
             return Page.empty<ActivityRepetition>(pageNumber, pageSize).right()
         }
 
         val repetitions = run {
             val pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "created_at"))
-            activityRepetitionsRepository.findAllByContextAndReadyTrue(
+            activityRepetitionsRepository.findAllByContextAndCompletedTrue(
                 context.applicationId,
                 activityId,
                 pageRequest,

@@ -1,0 +1,4 @@
+DROP INDEX activity_repetition_activity_id_application_id_started_at_idx;
+
+CREATE INDEX activity_repetition_activity_id_started_at_application_id_idx
+    ON activity_repetition (activity_id, started_at, application_id);
