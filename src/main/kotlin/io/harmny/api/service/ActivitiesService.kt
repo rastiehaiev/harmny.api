@@ -7,6 +7,7 @@ import arrow.core.right
 import arrow.core.rightIfNotNull
 import io.harmny.api.entity.ActivityEntity
 import io.harmny.api.model.Activity
+import io.harmny.api.model.ActivityDetails
 import io.harmny.api.model.ActivityLineChartMetricData
 import io.harmny.api.model.ActivityStatistics
 import io.harmny.api.model.Context
@@ -45,6 +46,11 @@ class ActivitiesService(
         return rootActivities
             .map { activityEntity -> activityEntity.toActivity(activitiesGroupedByParent) }
             .sortedWith(activitiesComparator)
+    }
+
+    @Transactional
+    fun get(context: Context, activityId: String): Either<Fail, ActivityDetails> {
+        return findById(context, activityId).map { it.toActivityDetails() }
     }
 
     @Transactional
@@ -263,6 +269,18 @@ class ActivitiesService(
             lastUpdatedAt,
             children,
             currentRepetition?.id,
+        )
+    }
+
+    private fun ActivityEntity.toActivityDetails(): ActivityDetails {
+        return ActivityDetails(
+            id,
+            name,
+            group,
+            parentActivityId,
+            createdAt,
+            lastUpdatedAt,
+            currentRepetition?.toModel(),
         )
     }
 

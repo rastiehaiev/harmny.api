@@ -56,6 +56,20 @@ class ActivitiesEndpoint(
         }
     }
 
+    @Operation(summary = "List activities.")
+    @GetMapping(path = ["/activities/{activityId}"])
+    suspend fun getActivity(
+        @CurrentContext context: Context,
+        @PathVariable("activityId") activityId: String,
+    ): ResponseEntity<out Any> {
+        return withContext(Dispatchers.IO) {
+            activitiesService.get(context, activityId)
+        }.fold(
+            { fail -> fail.asResponse() },
+            { activityDetails -> ResponseEntity.ok(activityDetails) },
+        )
+    }
+
     @Operation(summary = "Update activity.")
     @PutMapping(path = ["/activities/{activityId}"])
     suspend fun updateActivity(

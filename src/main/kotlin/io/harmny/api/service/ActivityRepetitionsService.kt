@@ -353,24 +353,24 @@ class ActivityRepetitionsService(
         val newTimeSpentMs = timeSpentMs + durationMs.toInt()
         return newTimeSpentMs.takeIf { it > 0 }
     }
+}
 
-    private fun ActivityRepetitionEntity.toModel(): ActivityRepetition {
-        return ActivityRepetition(
-            id = id,
-            createdAt = createdAt,
-            startedAt = startedAt,
-            lastStartedAt = lastStartedAt,
-            count = count,
-            caloriesBurnt = caloriesBurnt,
-            started = started,
-            timeSpentMs = timeSpentMs,
-            heartRate = heartRate,
-            mood = mood,
-            painLevel = painLevel,
-            complexity = complexity,
-            distance = distance,
-            restarts = restarts,
-            completed = completed,
-        )
-    }
+fun ActivityRepetitionEntity.toModel(): ActivityRepetition {
+    return ActivityRepetition(
+        id = id,
+        createdAt = createdAt,
+        startedAt = startedAt,
+        lastStartedAt = lastStartedAt,
+        count = count,
+        caloriesBurnt = caloriesBurnt,
+        started = started,
+        timeSpentMs = timeSpentMs,
+        heartRate = heartRate,
+        mood = mood,
+        painLevel = painLevel,
+        complexity = complexity,
+        distance = distance,
+        restarts = restarts,
+        completed = completed,
+    )
 }
